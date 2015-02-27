@@ -27,7 +27,7 @@ describe "Echo Test Suite" do
   before(:all) do
 
     @eyes = Applitools::Eyes.new
-    @eyes.api_key = 'F98XqniW4M0E4sgOKnLvPK6aNJvMFoh97L4x7BuAr1MQw110' 
+    @eyes.api_key = ENV['APPLITOOLS_KEY']
 
     @base_url = "http://digitalscientists.github.io/echo-static/"
 
