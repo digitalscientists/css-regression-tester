@@ -9,6 +9,7 @@ Capybara.default_driver = :poltergeist
 Capybara.javascript_driver = :poltergeist
 
 es_url = "http://activity_tracker:Act1v1tyTrack3r@ec2-54-234-209-191.compute-1.amazonaws.com:8080/tracked_activities_production/users_product/_search"
+staging_es_url = "http://activity_tracker:Act1v1tyTrack3r@54.87.249.146:8080/tracker_tester/domain"
 
 describe "Rately xpath tester", :type => :feature do
 
@@ -17,6 +18,16 @@ describe "Rately xpath tester", :type => :feature do
     page.driver.options[:logger] = File.open("/dev/null",'a')
     page.driver.options[:phantomjs_logger] = File.open("/dev/null",'a')
     page.driver.options[:timeout] = 15
+  end
+
+  after :each do |example|
+    if example.exception
+      RestClient.post staging_es_url, {
+        url: example.description,
+        status: 'failure',
+        error: example.exception
+      }.to_json
+    end
   end
 
   resp = RestClient.post es_url, {
@@ -52,7 +63,7 @@ describe "Rately xpath tester", :type => :feature do
 
     urls.uniq[0..3].each do |url|
 
-      it "tests the tracker on #{url}" do
+      it url do
 
         load_tries = 0
 
@@ -74,7 +85,7 @@ describe "Rately xpath tester", :type => :feature do
 
         end
 
-        expect(page.status_code).not_to be(404)
+        expect(page.status_code).to be < 400
 
         execute_script(%|
           script = document.createElement('script')
@@ -100,6 +111,7 @@ describe "Rately xpath tester", :type => :feature do
         expect(json).not_to be_empty
 
         data = JSON.parse(json)
+
         product = data["product"]
 
         expect(product["title"]).not_to be_empty
