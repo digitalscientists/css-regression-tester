@@ -25,7 +25,7 @@ describe "Rately xpath tester", :type => :feature do
       urls: {
         terms: {
           field: "domain.raw",
-          size: 50
+          size: 5000
         }
       }
     }
@@ -37,7 +37,7 @@ describe "Rately xpath tester", :type => :feature do
   domains.each do |domain|
 
     resp = RestClient.post es_url, {
-      size: 3,
+      size: 10,
       filter: {
         term: {
           :"domain.raw" => domain
@@ -50,7 +50,7 @@ describe "Rately xpath tester", :type => :feature do
     data = JSON.parse resp.to_str
     urls = data['hits']['hits'].map{|h| h['_source']['base_url']}
 
-    urls.each do |url|
+    urls.uniq[0..3].each do |url|
 
       it "tests the tracker on #{url}" do
 
