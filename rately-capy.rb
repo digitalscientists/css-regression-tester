@@ -60,6 +60,8 @@ describe "Rately xpath tester", :type => :feature do
 
           visit(url)
 
+          puts url, page.status_code
+
         rescue Capybara::Poltergeist::TimeoutError => e
 
           puts e, url
@@ -71,6 +73,8 @@ describe "Rately xpath tester", :type => :feature do
           puts e
 
         end
+
+        expect(page.status_code).not_to be(404)
 
         execute_script(%|
           script = document.createElement('script')
